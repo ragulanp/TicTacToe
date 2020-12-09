@@ -1,3 +1,7 @@
+# TicTacToe
+
+TicTacToe written in TypeScript using React. To practice my TypeScript skills.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
