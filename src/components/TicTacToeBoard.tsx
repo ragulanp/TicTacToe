@@ -15,22 +15,39 @@ const TicTacToeBoard = () => {
     const [isXTurn, setIsXTurn] = useState(true);
     const [statusMsg, setStatusMsg] = useState("");
     const [piecesPlaced, setPiecesPlaced] = useState(0);
+    const [winningLine, setWinningLine] = useState([""]);
 
     const hasWon = (isXTurn:boolean) => {
         const symbol = isXTurn ? 'X' : 'O';
         for (let row=0;row<3;row++){
             for (let col=0;col<3;col++){
                 if (row === 0){
-                    if (recursiveCheckForWin(0, col, 1, 0, symbol)) return true; // vertically/nedover (|)
+                    if (recursiveCheckForWin(0, col, 1, 0, symbol)){
+                        // vertically/nedover (|)
+                        setWinningLine([`(0,${col})`, `(1,${col})`, `(2,${col})`]);
+                        return true; 
+                    }
                     if(col === 0) {
-                        if (recursiveCheckForWin(0, 0, 1, 1, symbol)) return true; //diagonally down right (\)
+                        if (recursiveCheckForWin(0, 0, 1, 1, symbol)) {
+                            //diagonally down right (\)
+                            setWinningLine([`(0,0)`, `(1,1)`, `(2,2)`]);
+                            return true;
+                        }
                     }
                     if(col === 2) {
-                        if (recursiveCheckForWin(0, 2, 1, -1, symbol)) return true; // diagonally down left (/)
+                        if (recursiveCheckForWin(0, 2, 1, -1, symbol)) {
+                            // diagonally down left (/)
+                            setWinningLine([`(0,2)`, `(1,1)`, `(2,0)`]);
+                            return true;
+                        }
                     }
                 }
                 if (col === 0){
-                    if (recursiveCheckForWin(row, 0, 0, 1, symbol)) return true; //horizontally/bortover (---)
+                    if (recursiveCheckForWin(row, 0, 0, 1, symbol)) {
+                        //horizontally/bortover (---)
+                        setWinningLine([`(${row},0)`, `(${row},1)`, `(${row},2)`]);
+                        return true;
+                    }
                 }
             }
         }
@@ -46,8 +63,9 @@ const TicTacToeBoard = () => {
         return true;
     }
 
-    const updateCellValue = (isXTurn:boolean, rowPosition:number, colPosition:number) => {
-        if(cells[rowPosition][colPosition] === null){
+    const updateCellValue = (isXTurn:boolean, rowPosition:number, colPosition:number, e:React.MouseEvent) => {
+        e.preventDefault();
+        if(cells[rowPosition][colPosition] === null && statusMsg === ""){
             let oldCells = cells;
             oldCells[rowPosition][colPosition] = isXTurn ? 'X' : 'O';
             setCells(oldCells);
@@ -60,10 +78,15 @@ const TicTacToeBoard = () => {
         }
     }
 
+    const isPartOfWinningLineClass = (rowPosition:number, colPosition:number) => {
+        if (winningLine.includes(`(${rowPosition},${colPosition})`)) return true;
+        return false;
+    }
+
     return (
         <>
         <header>{statusMsg ? statusMsg : `Next turn: Player${isXTurn ? '1 (X)' : '2 (O)'}`}</header>
-        <Board>{cells.map((row,rowidx) => row.map((cellValue: string, colidx:number) => <Cell isXTurn={isXTurn} cellValue={cellValue} updateCellValue={updateCellValue} rowidx={rowidx} colidx={colidx} />))}</Board>
+        <Board>{cells.map((row,rowidx) => row.map((cellValue: string, colidx:number) => <Cell cellValue={cellValue} updateCellValue={(e) => updateCellValue(isXTurn, rowidx, colidx, e)} partOfWInningLine={isPartOfWinningLineClass(rowidx,colidx)} />))}</Board>
         </>
     );
 }

@@ -17,17 +17,15 @@ const StyledCell = styled.span`
 `;
 
 interface CellPropTypes{
-    isXTurn: boolean,
     cellValue: string,
-    updateCellValue: (isXTurn:boolean, rowPosition:number, colPosition:number) => void,
-    rowidx: number,
-    colidx: number,
+    updateCellValue: (event: React.MouseEvent<HTMLSpanElement>) => void,
+    partOfWInningLine: boolean, 
 }
 
-const Cell = ({isXTurn, cellValue, updateCellValue, rowidx, colidx}:CellPropTypes) => {
+const Cell = ({cellValue, updateCellValue, partOfWInningLine}:CellPropTypes) => {
     
     return (
-        <StyledCell cellValue={cellValue} onClick={(e)=>{e.preventDefault();updateCellValue(isXTurn, rowidx, colidx)}}>{cellValue ? cellValue : '_'}</StyledCell>
+        <StyledCell style={partOfWInningLine?{backgroundColor: "green"}: {}} cellValue={cellValue} onClick={updateCellValue}>{cellValue ? cellValue : '_'}</StyledCell>
     )
 }
 
