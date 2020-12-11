@@ -8,7 +8,13 @@ const Board = styled.div`
     border: 3px solid;
     width: 300px;
     height: 300px;
-`
+`;
+
+const Menu = styled.span`
+    display: flex;
+    justify-content: space-between;
+    width: 300px;
+`;
 
 const TicTacToeBoard = () => {
     const [cells, setCells] = useState(new Array(3).fill(null).map(row => new Array(3).fill(null)));
@@ -16,6 +22,7 @@ const TicTacToeBoard = () => {
     const [statusMsg, setStatusMsg] = useState("");
     const [piecesPlaced, setPiecesPlaced] = useState(0);
     const [winningLine, setWinningLine] = useState([""]);
+    const [lastMove, setLastMove] = useState<number[]>([]);
 
     const hasWon = (isXTurn:boolean) => {
         const symbol = isXTurn ? 'X' : 'O';
@@ -69,6 +76,7 @@ const TicTacToeBoard = () => {
             let oldCells = cells;
             oldCells[rowPosition][colPosition] = isXTurn ? 'X' : 'O';
             setCells(oldCells);
+            setLastMove([rowPosition, colPosition]);
             if (hasWon(isXTurn)) setStatusMsg("Player "+(isXTurn ? '1 (X)':'2 (O)') + " wins!");
             else if(piecesPlaced+1 === 9) setStatusMsg("Game over, it's a draw!");
             else {
@@ -83,8 +91,21 @@ const TicTacToeBoard = () => {
         return false;
     }
 
+    const undoLastMove = () => {
+        let newCells = cells;
+        newCells[lastMove[0]][lastMove[1]] = null;
+        setCells(newCells);
+        setIsXTurn(!isXTurn);
+        setLastMove([]);
+        setPiecesPlaced(piecesPlaced-1);
+    }
+
     return (
         <>
+        <Menu>
+        <button onClick={()=> window.location.reload()}>Restart game</button>
+        {lastMove.length > 0 && statusMsg === "" && <button onClick={()=> undoLastMove()}>Undo</button>}
+        </Menu>
         <header>{statusMsg ? statusMsg : `Next turn: Player${isXTurn ? '1 (X)' : '2 (O)'}`}</header>
         <Board>{cells.map((row,rowidx) => row.map((cellValue: string, colidx:number) => <Cell cellValue={cellValue} updateCellValue={(e) => updateCellValue(isXTurn, rowidx, colidx, e)} partOfWInningLine={isPartOfWinningLineClass(rowidx,colidx)} />))}</Board>
         </>
