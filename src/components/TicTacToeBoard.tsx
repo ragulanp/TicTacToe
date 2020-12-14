@@ -23,9 +23,11 @@ const TicTacToeBoard = () => {
     const [piecesPlaced, setPiecesPlaced] = useState(0);
     const [winningLine, setWinningLine] = useState([""]);
     const [lastMove, setLastMove] = useState<number[]>([]);
+    const [decidedLines, setDecidedLines] = useState(0);
 
     const hasWon = (isXTurn:boolean) => {
         const symbol = isXTurn ? 'X' : 'O';
+        setDecidedLines(0);
         for (let row=0;row<3;row++){
             for (let col=0;col<3;col++){
                 if (row === 0){
@@ -63,9 +65,18 @@ const TicTacToeBoard = () => {
 
     const recursiveCheckForWin = (x:number, y:number, xVariation:number, yVariation:number, symbol:string, streak:number=0):boolean => {
         while (streak < 3){
-            if (x>3 || y>3 || x<0 || y<0) return false;
+            if (x>2 || y>2 || x<0 || y<0) {
+                setDecidedLines(decidedLines+1);
+                return false;
+            }
             if (cells[x][y] === symbol) return recursiveCheckForWin(x+xVariation, y+yVariation, xVariation, yVariation, symbol, streak+1);
-            else return false;
+            else {
+                if (cells[x][y] !== null) {
+                    setDecidedLines(decidedLines+1);
+                    return false;
+                }
+                return recursiveCheckForWin(x+xVariation, y+yVariation, xVariation, yVariation, symbol, streak);
+            }
         }
         return true;
     }
@@ -78,7 +89,7 @@ const TicTacToeBoard = () => {
             setCells(oldCells);
             setLastMove([rowPosition, colPosition]);
             if (hasWon(isXTurn)) setStatusMsg("Player "+(isXTurn ? '1 (X)':'2 (O)') + " wins!");
-            else if(piecesPlaced+1 === 9) setStatusMsg("Game over, it's a draw!");
+            else if(piecesPlaced+1 === 9 || decidedLines+1 === 8 || (piecesPlaced+1 === 7 && decidedLines+1 === 7)) setStatusMsg("Game over, it's a draw!");
             else {
                 setIsXTurn(!isXTurn);
                 setPiecesPlaced(piecesPlaced+1);
